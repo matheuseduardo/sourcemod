@@ -1038,6 +1038,10 @@ void ListPluginsToClient(CPlayer *player, const CCommand &args)
 	char buffer[256];
 	edict_t *e = player->GetEdict();
 
+	// TESTANDO NÃO LISTAR NENHUM PLUGIN
+	ClientConsolePrint(e, "[SM] No plugins found.");
+	return;
+
 	AutoPluginList plugins(scripts);
 	if (!plugins->size())
 	{
