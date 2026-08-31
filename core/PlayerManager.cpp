@@ -1104,6 +1104,25 @@ void ListPluginsToClient(CPlayer *player, const CCommand &args)
 	}
 }
 
+void ListPluginsToClientCustom(CPlayer *player, const CCommand &args)
+{
+	edict_t *e = player->GetEdict();
+
+	static const char *banner[] = {
+		"  ____  _  _   _   _ ___ ____   ___  ____         ____ ____ ",
+		" | __ )| || | | \\ | |_ _|  _ \\ / _ \\/ ___|       / ___/ ___|",
+		" |  _ \\| || |_|  \\| || || | | | | | \\___ \\      | |  | |    ",
+		" | |_) |__   _| |\\  || || |_| | |_| |___) |  _  | |__| |___ ",
+		" |____/   |_| |_| \\_|___|____/ \\___/|____/  (_)  \\____\\____|",
+		"                                                            ",
+	};
+
+	for (size_t i = 0; i < SM_ARRAYSIZE(banner); i++)
+	{
+		ClientConsolePrint(e, "%s", banner[i]);
+	}
+}
+
 #if SOURCE_ENGINE >= SE_ORANGEBOX
 void PlayerManager::OnClientCommand(edict_t *pEntity, const CCommand &args)
 {
@@ -1126,7 +1145,7 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 	{
 		if (args.ArgC() > 1 && strcmp(args.Arg(1), "plugins") == 0)
 		{
-			ListPluginsToClient(pPlayer, args);
+			ListPluginsToClientCustom(pPlayer, args);
 			RETURN_META(MRES_SUPERCEDE);
 		}
 		else if (args.ArgC() > 1 && strcmp(args.Arg(1), "exts") == 0)
