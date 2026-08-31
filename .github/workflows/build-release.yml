@@ -143,10 +143,17 @@ jobs:
         run: |
           mkdir build
           cd build
+
+          breakpad_flags=()
+          if [ -n "$BREAKPAD_SYMBOL_SERVER" ]; then
+            breakpad_flags=(--breakpad-dump --symbol-files)
+          else
+            echo "::notice::BREAKPAD_SYMBOL_SERVER is not set; skipping breakpad symbol dump/upload."
+          fi
+
           python3 ../configure.py \
             --enable-optimize \
-            --breakpad-dump \
-            --symbol-files \
+            "${breakpad_flags[@]}" \
             --sdks=${{ join(fromJson(steps.sdk_list.outputs.sdk_list), ',') }} \
             --targets=${{ env.ARCH }} \
             '--mms-path=${{ steps.path_helper.outputs.dependencies }}/mmsource-${{ env.MMSOURCE_VERSION }}' \
