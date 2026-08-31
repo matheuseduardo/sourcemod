@@ -1171,6 +1171,8 @@ void PlayerManager::OnClientCommand(edict_t *pEntity)
 				" Borja \"faluco\" Ferrer, Pavol \"PM OnoTo\" Marko");
 			ClientConsolePrint(pEntity,
 				"SourceMod is open source under the GNU General Public License.");
+			ClientConsolePrint(pEntity,
+				"modded by @matheuseduardo");
 			RETURN_META(MRES_SUPERCEDE);
 		}
 
