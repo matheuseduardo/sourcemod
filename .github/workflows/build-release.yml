@@ -107,8 +107,6 @@ jobs:
       
       - name: Install dependencies
         shell: bash
-        env:
-          MAXMIND_LICENSE_KEY: ${{ secrets.MAXMIND_LICENSE_KEY }}
         run: |
           mkdir -p '${{ steps.path_helper.outputs.dependencies }}'
           cd '${{ steps.path_helper.outputs.dependencies }}'
@@ -117,14 +115,9 @@ jobs:
           mkdir -p sourcemod
           ../sourcemod/tools/checkout-deps.sh -s ${{ join(fromJson(steps.sdk_list.outputs.sdk_list), ',') }}
 
-          if [ -z "$MAXMIND_LICENSE_KEY" ]; then
-            echo "::error::MAXMIND_LICENSE_KEY secret is not configured."
-            exit 1
-          fi
-
           geotmpdir=$(mktemp -d)
           geotar="$geotmpdir/GeoLite2-City.tar.gz"
-          curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=$MAXMIND_LICENSE_KEY&suffix=tar.gz" -o "$geotar"
+          curl -fsSL "https://gitlab.myagora.fr/api/v4/projects/maxmindproxy%2Fgeolite2/packages/generic/geolite2/latest/GeoLite2-City.tar.gz" -o "$geotar"
           tar -xzf "$geotar" -C "$geotmpdir"
           geommdb=$(find "$geotmpdir" -type f -name 'GeoLite2-City.mmdb' | head -n 1)
           if [ -z "$geommdb" ]; then
