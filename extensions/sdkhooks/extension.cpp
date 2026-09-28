@@ -499,6 +499,11 @@ FeatureStatus SDKHooks::GetFeatureStatus(FeatureType type, const char *name)
 
 static void PopulateCallbackList(const std::vector<HookList> &source, std::vector<IPluginFunction *> &destination, int entity)
 {
+	// SourcePawn cannot be called from worker threads. This can happen on some
+	// engine variants, where the engine invokes ShouldCollide off-thread.
+	if (g_MainThreadId != std::this_thread::get_id())
+		return;
+	
 	destination.reserve(8);
 	for (size_t iter = 0; iter < source.size(); ++iter)
 	{
@@ -1386,11 +1391,6 @@ void SDKHooks::Hook_SetTransmit(CCheckTransmitInfo *pInfo, bool bAlways)
 
 bool SDKHooks::Hook_ShouldCollide(int collisionGroup, int contentsMask)
 {
-	// SourcePawn cannot be called from worker threads. This can happen on some
-	// engine variants, where the engine invokes ShouldCollide off-thread.
-	if (g_MainThreadId != std::this_thread::get_id())
-		RETURN_META_VALUE(MRES_IGNORED, false);
-
 	CBaseEntity *pEntity = META_IFACEPTR(CBaseEntity);
 
 	CVTableHook vhook(pEntity);
@@ -1854,9 +1854,8 @@ void SDKHooks::HandleEntityCreated(CBaseEntity *pEntity, int index, cell_t ref)
 	cell_t bcompatRef = gamehelpers->EntityToBCompatRef(pEntity);
 
 	// Send OnEntityCreated to SM listeners
-	SourceHook::List<ISMEntityListener *>::iterator iter;
 	ISMEntityListener *pListener = NULL;
-	for (iter = m_EntListeners.begin(); iter != m_EntListeners.end(); iter++)
+	for (auto iter = m_EntListeners.begin(); iter != m_EntListeners.end(); iter++)
 	{
 		pListener = (*iter);
 		pListener->OnEntityCreated(pEntity, pName ? pName : "");
@@ -1875,9 +1874,8 @@ void SDKHooks::HandleEntityDeleted(CBaseEntity *pEntity)
 	cell_t bcompatRef = gamehelpers->EntityToBCompatRef(pEntity);
 
 	// Send OnEntityDestroyed to SM listeners
-	SourceHook::List<ISMEntityListener *>::iterator iter;
 	ISMEntityListener *pListener = NULL;
-	for (iter = m_EntListeners.begin(); iter != m_EntListeners.end(); iter++)
+	for (auto iter = m_EntListeners.begin(); iter != m_EntListeners.end(); iter++)
 	{
 		pListener = (*iter);
 		pListener->OnEntityDestroyed(pEntity);

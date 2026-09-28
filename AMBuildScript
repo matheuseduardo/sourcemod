@@ -271,7 +271,7 @@ class SMConfig(object):
       '-fvisibility=hidden',
     ]
 
-    cxx.cxxflags += ['-std=c++17']
+    cxx.cxxflags += ['-std=c++20']
 
     cxx.cxxflags += [
       '-fno-threadsafe-statics',
@@ -326,6 +326,13 @@ class SMConfig(object):
     if cxx.version >= 'clang-21.0':
         cxx.cflags += ['-Wno-uninitialized-const-pointer']
 
+    if cxx.version >= 'clang-16.0' or cxx.version >= 'apple-clang-15.0':
+        cxx.cxxflags += ['-Wno-deprecated-anon-enum-enum-conversion']
+
+    # C++20 deprecates volatile ++/-- and compound assignment (P1152R4).
+    if cxx.version >= 'clang-12.0' or cxx.version >= 'apple-clang-13.0':
+        cxx.cxxflags += ['-Wno-deprecated-volatile']
+
     if have_gcc:
       cxx.cflags += ['-Wno-maybe-uninitialized']
 
@@ -356,7 +363,7 @@ class SMConfig(object):
       '/EHsc',
       '/GR-',
       '/TP',
-      '/std:c++17',
+      '/std:c++20',
     ]
     cxx.linkflags += [
       'kernel32.lib',
@@ -413,6 +420,7 @@ class SMConfig(object):
     elif cxx.family == 'clang':
       cxx.linkflags += ['-lgcc_eh']
     cxx.linkflags += ['-static-libstdc++']
+    cxx.linkflags += ['-Wl,--exclude-libs=libstdc++.a']
 
   def configure_mac(self, cxx):
     cxx.defines += ['OSX', '_OSX', 'POSIX', 'KE_ABSOLUTELY_NO_STL']
@@ -435,7 +443,7 @@ class SMConfig(object):
         return lambda builder, name: self.StaticLibrary(builder, cxx, name)
       extra_vars = {'Configure': get_configure_fn(cxx)}
       libamtl = builder.Build('public/amtl/amtl/AMBuilder', extra_vars)
-      self.libamtl[cxx.target.arch] = libamtl.binary
+      self.libamtl[cxx.target] = libamtl.binary
 
   def BinaryOutputName(self, binary, binary_type):
     target = binary.compiler.target
@@ -675,6 +683,9 @@ def IsBetterDefaultSpcomp(spcomp, other):
 for spcomp in SP.spcomp:
     if IsBetterDefaultSpcomp(spcomp, SM.spcomp):
         SM.spcomp = spcomp
+    SM.spcomp_bins.append(spcomp)
+
+for spcomp in SP.oldspcomp:
     SM.spcomp_bins.append(spcomp)
 
 # If we have a universal binary, ignore all other spcomps.
