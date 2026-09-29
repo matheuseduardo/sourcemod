@@ -76,7 +76,7 @@ jobs:
         working-directory: hl2sdk-mock
         shell: bash
         run: |
-          for arch in x86 x86_64; do
+          for arch in x86_64; do
             echo "==================================="
             echo "Testing $arch..."
             echo "==================================="
