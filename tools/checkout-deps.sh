@@ -171,14 +171,6 @@ do
   name=hl2sdk-$sdk
   branch=$sdk
   checkout
-
-  # Optionally pin the SDK to the last commit before a given date.
-  if [ -n "${HL2SDK_PIN_DATE:-}" ]; then
-    pin=$(cd "$name" && git rev-list -n 1 --before="$HL2SDK_PIN_DATE" "$branch")
-    if [ -n "$pin" ]; then
-      (cd "$name" && git checkout -q "$pin")
-    fi
-  fi
 done
 
 if [ $want_mock_sdk -eq 1 ]; then

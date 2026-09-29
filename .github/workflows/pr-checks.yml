@@ -32,8 +32,6 @@ jobs:
       MARIADB_CONNECTOR_C_VERSION: '3.4.9'
       MARIADB_CONNECTOR_C_RELEASE: '3.4.9-sm.5'
       MMSOURCE_VERSION: '1.12'
-      # Pin hl2sdk branches to the last commit before this date (see tools/checkout-deps.sh)
-      HL2SDK_PIN_DATE: '2026-08-31T20:00:00Z'
     steps:
       - uses: actions/checkout@v7
         with:

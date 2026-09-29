@@ -1068,7 +1068,8 @@ CBaseEntity *CHalfLife2::ReferenceToEntity(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 		auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-		CBaseHandle hndl(hndlValue);
+		static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
+		CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
 #endif
 
 		pInfo = LookupEntity(hndl.GetEntryIndex());
@@ -1176,7 +1177,8 @@ int CHalfLife2::ReferenceToIndex(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 		auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-		CBaseHandle hndl(hndlValue);
+		static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
+		CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
 #endif
 
 		CEntInfo *pInfo = LookupEntity(hndl.GetEntryIndex());
@@ -1246,7 +1248,8 @@ cell_t CHalfLife2::ReferenceToBCompatRef(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 	auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-	CBaseHandle hndl(hndlValue);
+	static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
+	CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
 #endif
 
 	if (hndl.GetEntryIndex() < MAX_EDICTS)
