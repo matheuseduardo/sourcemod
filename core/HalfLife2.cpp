@@ -1052,6 +1052,16 @@ cell_t CHalfLife2::EntityToReference(CBaseEntity *pEntity)
 	return (hndl.ToInt() | ENTREF_MASK);
 }
 
+// Builds a handle from its raw integer value (CBaseHandle(int) is gone in current SDKs).
+static CBaseHandle HandleFromRaw(int value)
+{
+	static_assert(sizeof(CBaseHandle) >= sizeof(value), "CBaseHandle smaller than raw value");
+	CBaseHandle hndl;
+	memset(static_cast<void *>(&hndl), 0, sizeof(hndl));
+	memcpy(static_cast<void *>(&hndl), &value, sizeof(value));
+	return hndl;
+}
+
 CBaseEntity *CHalfLife2::ReferenceToEntity(cell_t entRef)
 {
 	if ((unsigned)entRef == INVALID_EHANDLE_INDEX)
@@ -1068,8 +1078,7 @@ CBaseEntity *CHalfLife2::ReferenceToEntity(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 		auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-		static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
-		CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
+		CBaseHandle hndl = HandleFromRaw(hndlValue);
 #endif
 
 		pInfo = LookupEntity(hndl.GetEntryIndex());
@@ -1177,8 +1186,7 @@ int CHalfLife2::ReferenceToIndex(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 		auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-		static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
-		CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
+		CBaseHandle hndl = HandleFromRaw(hndlValue);
 #endif
 
 		CEntInfo *pInfo = LookupEntity(hndl.GetEntryIndex());
@@ -1248,8 +1256,7 @@ cell_t CHalfLife2::ReferenceToBCompatRef(cell_t entRef)
 #if SOURCE_ENGINE == SE_TF2
 	auto hndl = CBaseHandle::UnsafeFromIndex(hndlValue);
 #else
-	static_assert(sizeof(CBaseHandle) == sizeof(int), "unexpected CBaseHandle size");
-	CBaseHandle hndl = *reinterpret_cast<CBaseHandle *>(&hndlValue);
+	CBaseHandle hndl = HandleFromRaw(hndlValue);
 #endif
 
 	if (hndl.GetEntryIndex() < MAX_EDICTS)
